@@ -3,7 +3,7 @@ module github.com/crqra/conventional-commits-action
 go 1.17
 
 require (
-	github.com/crqra/go-action v0.0.0-20220224180134-6ec2e3a5e2f0
+	github.com/crqra/go-action v0.0.0-20220224200234-b52ce5c1b42a
 	github.com/google/go-github/v42 v42.0.0
 )
 
