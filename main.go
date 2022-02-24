@@ -9,15 +9,7 @@ import (
 	"github.com/crqra/go-action/pkg/action"
 )
 
-var patterns = []*regexp.Regexp{
-	regexp.MustCompile("(?im)^breaking change:.*"),
-	regexp.MustCompile(`(?i)^(\w+)(\(.*\))?!:.*`),
-	regexp.MustCompile(`(?i)^feat(\(.*\))?:.*`),
-	regexp.MustCompile(`(?i)^fix(\(.*\))?:.*`),
-	regexp.MustCompile(`(?i)^docs(\(.*\))?:.*`),
-	regexp.MustCompile(`(?i)^ci(\(.*\))?:.*`),
-	regexp.MustCompile(`(?i)^build(\(.*\))?:.*`),
-}
+var pattern = regexp.MustCompile(`(?i)^(\w+)(\(.*\))?:.*`)
 
 type PullRequest struct {
 	Title string `json:"title"`
@@ -57,6 +49,12 @@ func (a *ConventionalCommitsAction) Run() error {
 		}
 
 		return validatePush(evt)
+
+	default:
+		action.Notice(
+			"conventional-commits-action skipped: only runs for pull_request and push events",
+			map[string]string{},
+		)
 	}
 
 	return nil
@@ -69,16 +67,7 @@ func main() {
 }
 
 func validatePullRequest(evt PullRequestEvent) error {
-	valid := false
-
-	for _, p := range patterns {
-		if match := p.MatchString(evt.PullRequest.Title); match {
-			valid = match
-			continue
-		}
-	}
-
-	if !valid {
+	if match := pattern.MatchString(evt.PullRequest.Title); !match {
 		return fmt.Errorf("Pull Request title is not a valid Conventional Commit")
 	}
 
@@ -87,16 +76,7 @@ func validatePullRequest(evt PullRequestEvent) error {
 
 func validatePush(evt PushEvent) error {
 	for _, c := range evt.Commits {
-		valid := false
-
-		for _, p := range patterns {
-			if match := p.MatchString(c.Message); match {
-				valid = match
-				continue
-			}
-		}
-
-		if !valid {
+		if match := pattern.MatchString(c.Message); !match {
 			return fmt.Errorf("Commit %s is not a valid Conventional Commit", c.ID)
 		}
 	}
