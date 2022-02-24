@@ -3,7 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"os"
+	"io/ioutil"
 	"regexp"
 
 	"github.com/crqra/go-action/pkg/action"
@@ -99,7 +99,7 @@ func validatePush(evt PushEvent) error {
 }
 
 func parseEvent(evt interface{}) error {
-	data, err := os.ReadFile(action.Context.EventPath)
+	data, err := ioutil.ReadFile(action.Context.EventPath)
 	if err != nil {
 		return err
 	}
