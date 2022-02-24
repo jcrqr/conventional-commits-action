@@ -72,7 +72,9 @@ func validatePullRequest(evt PullRequestEvent) error {
 	valid := false
 
 	for _, p := range patterns {
-		valid = p.MatchString(evt.PullRequest.Title)
+		if valid = p.MatchString(evt.PullRequest.Title); valid {
+			continue
+		}
 	}
 
 	if !valid {
@@ -87,7 +89,9 @@ func validatePush(evt PushEvent) error {
 		valid := false
 
 		for _, p := range patterns {
-			valid = p.MatchString(c.Message)
+			if valid = p.MatchString(c.Message); valid {
+				continue
+			}
 		}
 
 		if !valid {
