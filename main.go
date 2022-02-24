@@ -19,21 +19,21 @@ var patterns = []*regexp.Regexp{
 	regexp.MustCompile(`(?i)^build(\(.*\))?:.*`),
 }
 
-type PullRequestEvent struct {
-	PullRequest struct {
-		Title string `json:"title"`
-	} `json:"pull_request"`
+type PullRequest struct {
+	Title string `json:"title"`
 }
 
-func (evt PullRequestEvent) String() string {
-	return evt.PullRequest.Title
+type PullRequestEvent struct {
+	PullRequest PullRequest `json:"pull_request"`
+}
+
+type Commit struct {
+	ID      string `json:"id"`
+	Message string `json:"message"`
 }
 
 type PushEvent struct {
-	Commits []struct {
-		ID      string `json:"id"`
-		Message string `json:"message"`
-	} `json:"commits"`
+	Commits []Commit `json:"commits"`
 }
 
 type ConventionalCommitsAction struct{}
@@ -72,7 +72,8 @@ func validatePullRequest(evt PullRequestEvent) error {
 	valid := false
 
 	for _, p := range patterns {
-		if valid = p.MatchString(evt.PullRequest.Title); valid {
+		if match := p.MatchString(evt.PullRequest.Title); match {
+			valid = match
 			continue
 		}
 	}
@@ -89,7 +90,8 @@ func validatePush(evt PushEvent) error {
 		valid := false
 
 		for _, p := range patterns {
-			if valid = p.MatchString(c.Message); valid {
+			if match := p.MatchString(c.Message); match {
+				valid = match
 				continue
 			}
 		}
