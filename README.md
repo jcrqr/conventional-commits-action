@@ -1,7 +1,7 @@
 # conventional-commits-action
 
-This action will validate a Pull Request title and commit messages to check if
-they follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) guidelines.
+This action validates a Pull Request title and commit messages against
+[Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) guidelines
 
 A valid title or commit message must follow this structure:
 

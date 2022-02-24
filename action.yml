@@ -1,5 +1,10 @@
-name: Conventional Commits
-description: Checks if a Pull Request and commits follow Conventional Commits
+name: Conventional Commits Validator
+author: João Cerqueira
+description: Validates a Pull Request title and commit messages against Conventional Commits guidelines
+
+branding:
+  icon: check-circle
+  color: purple
 
 runs:
   using: composite
