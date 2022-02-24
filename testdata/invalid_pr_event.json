@@ -1,0 +1,7 @@
+{
+  "action": "opened",
+  "number": 2,
+  "pull_request": {
+    "title": "Update the README with new information."
+  }
+}

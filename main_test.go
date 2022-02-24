@@ -1,54 +1,43 @@
 package main
 
-import "testing"
+import (
+	"testing"
 
-func TestValidatePullRequestOnValidTitle(t *testing.T) {
-	evt := PullRequestEvent{
-		PullRequest: PullRequest{
-			Title: "fix: something",
-		},
-	}
+	"github.com/crqra/go-action/pkg/action"
+)
 
-	if err := validatePullRequest(evt); err != nil {
-		t.Fail()
-	}
-}
+func TestValidPullRequest(t *testing.T) {
+	action.Context.EventName = "pull_request"
+	action.Context.EventPath = "testdata/valid_pr_event.json"
 
-func TestValidatePullRequestOnInvalidTitle(t *testing.T) {
-	evt := PullRequestEvent{
-		PullRequest: PullRequest{
-			Title: "wrong pull request title",
-		},
-	}
-
-	if err := validatePullRequest(evt); err == nil {
-		t.Fail()
+	if err := action.Execute(&ConventionalCommitsAction{}); err != nil {
+		t.Fatal(err)
 	}
 }
 
-func TestValidatePushOnValidCommits(t *testing.T) {
-	evt := PushEvent{
-		Commits: []Commit{
-			{ID: "4204bd1", Message: "fix: something"},
-			{ID: "4204bd3", Message: "feat: something"},
-		},
-	}
+func TestInvalidPullRequest(t *testing.T) {
+	action.Context.EventName = "pull_request"
+	action.Context.EventPath = "testdata/invalid_pr_event.json"
 
-	if err := validatePush(evt); err != nil {
-		t.Fail()
+	if err := action.Execute(&ConventionalCommitsAction{}); err == nil {
+		t.Fatal(err)
 	}
 }
 
-func TestValidatePushOnInvalidCommits(t *testing.T) {
-	evt := PushEvent{
-		Commits: []Commit{
-			{ID: "4204bd1", Message: "fix: something"},
-			{ID: "4204bd2", Message: "wrong message"},
-			{ID: "4204bd3", Message: "feat: something"},
-		},
-	}
+func TestValidPush(t *testing.T) {
+	action.Context.EventName = "push"
+	action.Context.EventPath = "testdata/valid_push_event.json"
 
-	if err := validatePush(evt); err == nil {
-		t.Fail()
+	if err := action.Execute(&ConventionalCommitsAction{}); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestInvalidPush(t *testing.T) {
+	action.Context.EventName = "push"
+	action.Context.EventPath = "testdata/invalid_push_event.json"
+
+	if err := action.Execute(&ConventionalCommitsAction{}); err == nil {
+		t.Fatal(err)
 	}
 }

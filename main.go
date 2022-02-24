@@ -1,54 +1,39 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"regexp"
 
 	"github.com/crqra/go-action/pkg/action"
+	"github.com/google/go-github/v42/github"
 )
 
 var pattern = regexp.MustCompile(`(?i)^(\w+)(\(.*\))?:.*`)
 
-type PullRequest struct {
-	Title string `json:"title"`
-}
-
-type PullRequestEvent struct {
-	PullRequest PullRequest `json:"pull_request"`
-}
-
-type Commit struct {
-	ID      string `json:"id"`
-	Message string `json:"message"`
-}
-
-type PushEvent struct {
-	Commits []Commit `json:"commits"`
-}
-
 type ConventionalCommitsAction struct{}
 
 func (a *ConventionalCommitsAction) Run() error {
-	switch action.Context.EventName {
-	case "pull_request":
-		var evt PullRequestEvent
+	evt, err := action.GetEvent()
+	if err != nil {
+		return err
+	}
 
-		if err := parseEvent(&evt); err != nil {
-			return err
+	switch evt := evt.(type) {
+	case *github.PullRequestEvent:
+		if match := pattern.MatchString(evt.PullRequest.GetTitle()); !match {
+			return fmt.Errorf("Pull Request title is not a valid Conventional Commit")
 		}
 
-		return validatePullRequest(evt)
+		return nil
 
-	case "push":
-		var evt PushEvent
-
-		if err := parseEvent(&evt); err != nil {
-			return err
+	case *github.PushEvent:
+		for _, c := range evt.Commits {
+			if match := pattern.MatchString(c.GetMessage()); !match {
+				return fmt.Errorf("Commit %s is not a valid Conventional Commit", c.GetSHA())
+			}
 		}
 
-		return validatePush(evt)
+		return nil
 
 	default:
 		action.Notice(
@@ -64,31 +49,4 @@ func main() {
 	if err := action.Execute(&ConventionalCommitsAction{}); err != nil {
 		action.SetFailed(err, map[string]string{})
 	}
-}
-
-func validatePullRequest(evt PullRequestEvent) error {
-	if match := pattern.MatchString(evt.PullRequest.Title); !match {
-		return fmt.Errorf("Pull Request title is not a valid Conventional Commit")
-	}
-
-	return nil
-}
-
-func validatePush(evt PushEvent) error {
-	for _, c := range evt.Commits {
-		if match := pattern.MatchString(c.Message); !match {
-			return fmt.Errorf("Commit %s is not a valid Conventional Commit", c.ID)
-		}
-	}
-
-	return nil
-}
-
-func parseEvent(evt interface{}) error {
-	data, err := ioutil.ReadFile(action.Context.EventPath)
-	if err != nil {
-		return err
-	}
-
-	return json.Unmarshal(data, evt)
 }
