@@ -3,6 +3,7 @@ name: Test
 on:
   push:
   pull_request:
+    types: [opened, synchronize, edited, ready_for_review]
 
 jobs:
   conventional-commits:
