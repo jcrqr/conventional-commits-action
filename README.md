@@ -17,7 +17,7 @@ A valid title or commit message must follow this structure:
 
 ```yaml
 - name: Conventional Commits
-  uses: crqra/conventional-commits-action@main
+  uses: crqra/conventional-commits-action@1.0.0
 ```
 
 ## Example
@@ -35,7 +35,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Conventional Commits
-        uses: crqra/conventional-commits-action@main
+        uses: crqra/conventional-commits-action@1.0.0
 ```
 
 ## Contributing
